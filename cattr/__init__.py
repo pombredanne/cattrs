@@ -1,11 +1,22 @@
-from .converters import Converter
+# -*- coding: utf-8 -*-
+from .converters import Converter, UnstructureStrategy
+
+__all__ = ('global_converter', 'unstructure', 'structure',
+           'structure_attrs_fromtuple', 'structure_attrs_fromdict',
+           'UnstructureStrategy')
 
 __author__ = 'Tin Tvrtković'
 __email__ = 'tinchester@gmail.com'
-__version__ = '0.2.0'
 
 
-_global_converter = Converter()
+global_converter = Converter()
 
-dumps = _global_converter.dumps
-loads = _global_converter.loads
+unstructure = global_converter.unstructure
+structure = global_converter.structure
+structure_attrs_fromtuple = global_converter.structure_attrs_fromtuple
+structure_attrs_fromdict = global_converter.structure_attrs_fromdict
+register_structure_hook = global_converter.register_structure_hook
+register_structure_hook_func = global_converter.register_structure_hook_func
+register_unstructure_hook = global_converter.register_unstructure_hook
+register_unstructure_hook_func = \
+    global_converter.register_unstructure_hook_func
