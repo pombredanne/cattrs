@@ -1,5 +1,6 @@
 import string
 import keyword
+import os
 
 from collections import OrderedDict
 from enum import Enum
@@ -10,7 +11,15 @@ from cattr._compat import is_py2, bytes, unicode
 import attr
 
 from attr import make_class, NOTHING
-from hypothesis import strategies as st
+from hypothesis import strategies as st, settings, HealthCheck
+
+settings.register_profile('CI', settings(suppress_health_check=[
+    HealthCheck.too_slow,
+]))
+
+if 'CI' in os.environ:
+    settings.load_profile('CI')
+
 
 if is_py2:
     # we exclude float checks from py2, because their stringification is not
@@ -241,7 +250,7 @@ def simple_attrs(defaults=None):
 
 def lists_of_attrs(defaults=None):
     # Python functions support up to 255 arguments.
-    return (st.lists(simple_attrs(defaults), average_size=9, max_size=50)
+    return (st.lists(simple_attrs(defaults), average_size=5, max_size=10)
             .map(lambda l: sorted(l,
                                   key=lambda t: t[0]._default is not NOTHING)))
 
