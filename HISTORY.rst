@@ -2,8 +2,13 @@
 History
 =======
 
-0.9.0 (UNRELEASED)
+0.9.0 (2018-07-22)
 ------------------
+* Python 3.7 support.
+
+0.8.1 (2018-06-19)
+------------------
+* The disambiguation function generator now supports unions of ``attrs`` classes and NoneType.
 
 0.8.0 (2018-04-14)
 ------------------
