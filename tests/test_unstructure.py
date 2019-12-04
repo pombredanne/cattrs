@@ -1,17 +1,22 @@
 """Tests for dumping."""
-from . import (
-    seqs_of_primitives,
-    dicts_of_primitives,
-    enums_of_primitives,
-    simple_classes,
-    nested_classes,
-)
-
-from cattr.converters import Converter, UnstructureStrategy
+from typing import Any, Type
 
 from attr import asdict, astuple
+from cattr.converters import Converter, UnstructureStrategy
+
 from hypothesis import given
-from hypothesis.strategies import sampled_from, choices
+from hypothesis.strategies import sampled_from, data
+
+
+from . import (
+    dicts_of_primitives,
+    enums_of_primitives,
+    nested_classes,
+    seqs_of_primitives,
+    sets_of_primitives,
+    simple_classes,
+)
+
 
 unstruct_strats = sampled_from(
     [UnstructureStrategy.AS_DICT, UnstructureStrategy.AS_TUPLE]
@@ -34,6 +39,20 @@ def test_seq_unstructure(seq_and_type, dump_strat):
     assert type(dumped) is type(seq)
 
 
+@given(sets_of_primitives, unstruct_strats)
+def test_set_unstructure(set_and_type, dump_strat):
+    # type: (Any, UnstructureStrategy) -> None
+    """Dumping a set of primitives is a simple copy operation."""
+    converter = Converter(unstruct_strat=dump_strat)
+    assert converter.unstruct_strat is dump_strat
+    set = set_and_type[0]
+    dumped = converter.unstructure(set)
+    assert dumped == set
+    if set:
+        assert dumped is not set
+    assert type(dumped) is type(set)
+
+
 @given(dicts_of_primitives, unstruct_strats)
 def test_mapping_unstructure(map_and_type, dump_strat):
     # type: (Any, UnstructureStrategy) -> None
@@ -46,13 +65,12 @@ def test_mapping_unstructure(map_and_type, dump_strat):
     assert type(dumped) is type(mapping)
 
 
-@given(enums_of_primitives(), unstruct_strats, choices())
-def test_enum_unstructure(enum, dump_strat, choice):
-    # type: (EnumMeta, UnstructureStrategy) -> None
+@given(enums_of_primitives(), unstruct_strats, data())
+def test_enum_unstructure(enum, dump_strat, data):
     """Dumping enums of primitives converts them to their primitives."""
     converter = Converter(unstruct_strat=dump_strat)
 
-    member = choice(list(enum.__members__.values()))
+    member = data.draw(sampled_from(list(enum.__members__.values())))
 
     assert converter.unstructure(member) == member.value
 
